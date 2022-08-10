@@ -1,1 +1,0 @@
-#### An online snake bot battle platform
