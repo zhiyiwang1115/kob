@@ -30,6 +30,12 @@ export class Snake extends AcGameObject {
         this.direction = d;
     }
 
+    check_tail_increasing() {
+        if (this.step <= 10) return true;
+        if (this.step % 3 === 1) return true;
+        return false;
+    }
+
     next_step() {
         const d = this.direction;
         this.next_cell = new Cell(this.cells[0].r + this.dr[d], this.cells[0].c + this.dc[d]);
@@ -51,10 +57,20 @@ export class Snake extends AcGameObject {
             this.cells[0] = this.next_cell;
             this.next_cell = null;
             this.status = "idle";
+            if (!this.check_tail_increasing()) this.cells.pop();
         } else {
             const move_distance = this.speed * this.timedelta / 1000;
             this.cells[0].x += move_distance * dx / distance;
             this.cells[0].y += move_distance * dy / distance;
+
+            if (!this.check_tail_increasing()) {
+                const k = this.cells.length;
+                const tail = this.cells[k - 1], tail_target = this.cells[k - 2];
+                const tail_dx = tail_target.x - tail.x;
+                const tail_dy = tail_target.y - tail.y;
+                tail.x += move_distance * tail_dx / distance;
+                tail.y += move_distance * tail_dy / distance;
+            }
         }
     }
 
@@ -72,6 +88,16 @@ export class Snake extends AcGameObject {
             ctx.beginPath();
             ctx.arc(cell.x * L, cell.y * L, L / 2, 0, Math.PI * 2);
             ctx.fill();
+        }
+
+        for (let i = 1; i < this.cells.length; i++) {
+            const a = this.cells[i - 1], b = this.cells[i];
+            if (Math.abs(a.x - b.x) < this.eps && Math.abs(a.y - b.y) < this.eps) continue
+            if (Math.abs(a.x - b.x) < this.eps) {
+                ctx.fillRect((a.x - 0.5) * L, Math.min(a.y, b.y) * L, L, Math.abs(a.y - b.y) * L);
+            } else {
+                ctx.fillRect(Math.min(a.x, b.x) * L, (a.y - 0.5) * L, Math.abs(a.x - b.x) * L, L);
+            }
         }
     }
 
