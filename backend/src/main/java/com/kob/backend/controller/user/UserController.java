@@ -39,7 +39,7 @@ public class UserController {
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(password);
-        User user = new User(userId,username,encodedPassword);
+        User user = new User(userId,username,encodedPassword,"");
         userMapper.insert(user);
         return "Add User Successfully";
     }
